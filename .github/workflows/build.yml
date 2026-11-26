@@ -210,7 +210,10 @@ jobs:
             fi
             echo "APK_CERT_SHA256=$expected" >> "$GITHUB_ENV"
           elif [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
-            for apk in "${apks[@]}"; do "$build_tools/apksigner" verify --verbose --print-certs "$apk"; done
+            # PR 构建没有签名 secrets，release 变体产出的是 unsigned APK；
+            # apksigner verify 会报 Missing META-INF/MANIFEST.MF，这里只列出产物。
+            echo "PR build is unsigned; skipping signature verification"
+            ls -l "${apks[@]}"
           else
             echo "::error::Refusing to publish a debug-signed APK"
             exit 1
